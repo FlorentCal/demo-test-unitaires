@@ -9,6 +9,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.contrib.java.lang.system.SystemOutRule;
+import org.junit.contrib.java.lang.system.TextFromStandardInputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,6 +30,9 @@ public class AppTest {
 	@Rule
 	public final SystemOutRule systemOutRule = new SystemOutRule().enableLog();
 
+	@Rule
+	public final TextFromStandardInputStream systemInMock = TextFromStandardInputStream.emptyStandardInputStream();
+	
 	private App app;
 	private CalculService calculService;
 
@@ -83,14 +87,16 @@ public class AppTest {
 	@Test 
 	public void testFin() throws Exception {
 
+		systemInMock.provideLines("fin");
 		this.app.demarrer();
-				
+		
 		assertThat(systemOutRule.getLog()).contains("Aurevoir :-(");
 	}
 	
 	@Test 
 	public void testExpressionFin() throws Exception {
 
+		systemInMock.provideLines("1+2", "fin");
 		this.app.demarrer();
 				
 		assertThat(systemOutRule.getLog()).contains("1+2=3");
@@ -101,6 +107,7 @@ public class AppTest {
 	@Test 
 	public void testInvalideExpressionFin() throws Exception {
 
+		systemInMock.provideLines("AAAA", "fin");
 		this.app.demarrer();
 				
 		assertThat(systemOutRule.getLog()).contains("L'expression AAAA est invalide");
@@ -111,6 +118,7 @@ public class AppTest {
 	@Test 
 	public void testDoubleExpressionFin() throws Exception {
 
+		systemInMock.provideLines("1+2", "30+2", "fin");
 		this.app.demarrer();
 				
 		assertThat(systemOutRule.getLog()).contains("1+2=3");
